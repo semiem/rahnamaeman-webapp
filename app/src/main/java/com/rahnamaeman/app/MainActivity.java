@@ -3,6 +3,7 @@ package com.rahnamaeman.app;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +15,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
@@ -28,6 +33,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -61,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        StrictMode.enableDefaults();
+
         MainActivity.context = getApplicationContext();
 
 
@@ -69,6 +78,8 @@ public class MainActivity extends AppCompatActivity implements
 //        Intent intent = new Intent(MainActivity.this, ConnectActivity.class);
 //        startActivity(intent);
 //        finish();
+
+
 
         askNotificationPermission();
 //        if (Build.VERSION.SDK_INT >= 33) {
@@ -88,8 +99,7 @@ public class MainActivity extends AppCompatActivity implements
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
         webSettings.setBuiltInZoomControls(true);
-        webSettings.setDisplayZoomControls(false);
-        webSettings.setSupportZoom(true);
+        webSettings.setSupportZoom(false);
 
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setAllowContentAccess(true);
@@ -110,6 +120,11 @@ public class MainActivity extends AppCompatActivity implements
                     return false;
 
                 try {
+                    Bundle extras = getIntent().getExtras();
+                    if (extras != null) {
+                        url = extras.getString("link");
+                    }
+
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                     view.getContext().startActivity(intent);
 
@@ -146,6 +161,10 @@ public class MainActivity extends AppCompatActivity implements
                 super.onPageFinished(view, url);
 
                 if (Objects.equals(url, "https://rahnamaeman.com/Profile.Html")) {
+
+
+                    Log.d(TAG, "GET TOKEN FROM DEVICE STORAGE");
+                    Log.d(TAG, deviceFirebaseToken);
 
                     if (deviceFirebaseToken.equals("NOTHING")){
                         deviceFirebaseToken = MyFirebaseMessagingService.getToken(context);
@@ -227,6 +246,52 @@ public class MainActivity extends AppCompatActivity implements
 
             // Grant permissions for cam
 
+            private View customView;
+            private android.webkit.WebChromeClient.CustomViewCallback customViewCallback;
+            private int originalOrientation;
+            private int originalSystemVisibility;
+
+            @Nullable
+            @Override
+            public Bitmap getDefaultVideoPoster() {
+
+                // on below line returning our resource from bitmap factory.
+                if (customView == null) {
+                    return null;
+                }
+                return BitmapFactory.decodeResource(getApplicationContext().getResources(), 2130837573);
+            }
+
+            @Override
+            public void onHideCustomView() {
+
+                // on below line removing our custom view and setting it to null.
+                ((FrameLayout) getWindow().getDecorView()).removeView(customView);
+                this.customView = null;
+
+                // on below line setting system ui visibility to original one and setting orientation for it.
+                getWindow().getDecorView().setSystemUiVisibility(this.originalSystemVisibility);
+                setRequestedOrientation(this.originalOrientation);
+
+                // on below line setting custom view call back to null.
+                this.customViewCallback.onCustomViewHidden();
+                this.customViewCallback = null;
+            }
+
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (this.customView != null) {
+                    onHideCustomView();
+                    return;
+                }
+                // on below line initializing all variables.
+                this.customView = view;
+                this.originalSystemVisibility = getWindow().getDecorView().getSystemUiVisibility();
+                this.originalOrientation = getRequestedOrientation();
+                this.customViewCallback = callback;
+                ((FrameLayout) getWindow().getDecorView()).addView(this.customView, new FrameLayout.LayoutParams(-1, -1));
+                getWindow().getDecorView().setSystemUiVisibility(3846);
+            }
 
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
