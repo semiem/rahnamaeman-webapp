@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "738550309263",
+    "project_id": "rahnamaeman-76a07",
+    "storage_bucket": "rahnamaeman-76a07.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738550309263:android:6a2db135c65ae7e272ebfa",
+        "android_client_info": {
+          "package_name": "com.rahnamaeman.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738550309263-g260j5hcgf61s83skh9ul51mpl3mbbj2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBY7n6cEkWIehG0rTfhzDJHis8UWkOWckY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738550309263-g260j5hcgf61s83skh9ul51mpl3mbbj2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
